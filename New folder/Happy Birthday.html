@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Birthday!</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #f0f8ff;
+      font-family: Arial, sans-serif;
+      position: relative;
+      text-align: center;
+    }
+
+    #start-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #start-button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 20px 40px;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+
+    #intro-image {
+      width: 250px;
+      max-width: 80%;
+    }
+
+    #intro-text {
+      font-size: 20px;
+      color: #333;
+      max-width: 80%;
+    }
+
+    #confetti-btn, #randomize-btn {
+      z-index: 10;
+      background-color: #ff69b4;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: none;
+      font-size: 16px;
+    }
+
+    #confetti-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+    }
+
+    #randomize-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+    }
+
+    .message {
+      position: absolute;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <!-- Start Section -->
+  <div id="start-container">
+    <button id="start-button">La mulți ani!</button>
+    <img id="intro-image" src="file:///C:/Users/imipl/Desktop/46ff0c2d-262c-496a-8d83-6afdb340acfe.jpg" alt="Birthday" style="position: fixed; bottom: -500px; left: 50%; transform: translateX(-50%); width: 250px; z-index: 5;" />
+    <div id="intro-text">Sa fie cea mai zi de naștere dintre toate zilele de naștere 🎂🎈 ( --Bobi probabil )</div>
+  </div>
+
+  <!-- Confetti and Randomize Buttons -->
+  <button id="confetti-btn">🎉 Confetti</button>
+  <button id="randomize-btn">🔁 Randomize Words</button>
+
+  <!-- Music -->
+  <audio id="birthday-audio">
+    <source src="https://example.com/your-birthday-song.mp3" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Confetti JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const messages = [
+      "Happy Birthday", "Feliz Cumpleaños", "Joyeux Anniversaire", "Alles Gute zum Geburtstag",
+      "Buon Compleanno", "Feliz Aniversário", "С Днём Рождения", "生日快乐", "誕生日おめでとう",
+      "생일 축하해요", "عيد ميلاد سعيد", "जन्मदिन मुबारक हो", "สุขสันต์วันเกิด", "Selamat Hari Lahir",
+      "Bon Anniversaire", "Tillykke med fødselsdagen", "Grattis på födelsedagen", "Gefeliciteerd",
+      "La mulți ani", "Hyvää syntymäpäivää", "Boldog születésnapot", "Mutlu yıllar",
+      "Χρόνια Πολλά", "Срећан рођендан", "Zorionak", "Parabéns", "Alles Gute",
+      "Yom Huledet Sameach", "Buon compleanno", "Til hamingju með afmælið",
+      "Среќен роденден", "יום הולדת שמח", "Selamat Ulang Tahun", "Veels geluk met jou verjaarsdag",
+      "Gratulerer med dagen", "Maligayang Bati", "Sanah Helwah", "Til lykke med fødselsdagen",
+      "Happy B'day", "Barka da ranar haihuwa"
+    ];
+
+    const fonts = ["Arial", "Verdana", "Times New Roman", "Georgia", "Courier New", "Comic Sans MS", "Impact", "Tahoma", "Trebuchet MS"];
+    const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A8", "#33FFF2", "#FFF633", "#A833FF", "#FF8F33", "#33FFB5"];
+
+    const usedPositions = [];
+
+    function getRandomNonOverlappingPosition(width, height) {
+      const maxAttempts = 200;
+      for (let i = 0; i < maxAttempts; i++) {
+        const x = Math.floor(Math.random() * (window.innerWidth - width));
+        const y = Math.floor(Math.random() * (window.innerHeight - height));
+        let overlapping = usedPositions.some(pos => (
+          Math.abs(pos.x - x) < width + 20 && Math.abs(pos.y - y) < height + 20
+        ));
+        if (!overlapping) {
+          usedPositions.push({ x, y });
+          return { x, y };
+        }
+      }
+      return { x: 0, y: 0 };
+    }
+
+    function showMessages() {
+      messages.forEach(text => {
+        const div = document.createElement("div");
+        div.classList.add("message");
+        div.innerText = text;
+        div.style.fontSize = `${Math.floor(Math.random() * 20 + 16)}px`;
+        div.style.fontFamily = fonts[Math.floor(Math.random() * fonts.length)];
+        div.style.color = colors[Math.floor(Math.random() * colors.length)];
+        document.body.appendChild(div);
+        const rect = div.getBoundingClientRect();
+        const { x, y } = getRandomNonOverlappingPosition(rect.width, rect.height);
+        div.style.left = `${x}px`;
+        div.style.top = `${y}px`;
+      });
+    }
+
+    function launchConfetti() {
+      confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+    }
+
+    document.getElementById("start-button").addEventListener("click", () => {
+      document.getElementById("start-container").style.display = "none";
+      document.getElementById("confetti-btn").style.display = "block";
+      document.getElementById("randomize-btn").style.display = "block";
+      document.getElementById("birthday-audio").play();
+      document.body.style.background = "url('file:///C:/Users/imipl/Desktop/1000_F_888528444_mBJCt2wN0Trus6MRonWl3URvhA8r29pe.jpg') center center / cover no-repeat fixed";
+      showMessages();
+      launchConfetti();
+    });
+
+    document.getElementById("confetti-btn").addEventListener("click", launchConfetti);
+
+    document.getElementById("randomize-btn").addEventListener("click", () => {
+      document.querySelectorAll('.message').forEach(el => el.remove());
+      usedPositions.length = 0;
+      showMessages();
+    });
+  </script>
+</body>
+</html>
